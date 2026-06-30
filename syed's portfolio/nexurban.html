@@ -1,0 +1,1901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NexUrban — Intelligent Cities, Redefined</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+
+  <style>
+    /* =============================================
+       CSS VARIABLES & BASE RESET
+    ============================================= */
+    :root {
+      --bg-deep:      #050810;
+      --bg-mid:       #0b0f1e;
+      --bg-card:      #0f1628;
+      --border:       rgba(255,255,255,0.07);
+      --neon-cyan:    #00f5d4;
+      --neon-blue:    #3d8bff;
+      --neon-violet:  #9d4edd;
+      --text-primary: #e8edf8;
+      --text-muted:   #7a8aaa;
+      --font-display: 'Syne', sans-serif;
+      --font-body:    'DM Sans', sans-serif;
+      --radius-card:  16px;
+      --transition:   0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--bg-deep);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-weight: 300;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* =============================================
+       NOISE OVERLAY (atmosphere texture)
+    ============================================= */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.6;
+    }
+
+    /* =============================================
+       SCROLLBAR
+    ============================================= */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg-deep); }
+    ::-webkit-scrollbar-thumb { background: var(--neon-cyan); border-radius: 10px; }
+
+    /* =============================================
+       NAVBAR
+    ============================================= */
+    #mainNav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      padding: 1rem 0;
+      transition: background var(--transition), box-shadow var(--transition);
+    }
+
+    #mainNav.scrolled {
+      background: rgba(5, 8, 16, 0.92);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 1px 0 var(--border);
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.5rem;
+      letter-spacing: -0.03em;
+      color: var(--text-primary) !important;
+      text-decoration: none;
+    }
+
+    .nav-logo span { color: var(--neon-cyan); }
+
+    .navbar-nav .nav-link {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted) !important;
+      padding: 0.4rem 1rem !important;
+      transition: color var(--transition);
+    }
+
+    .navbar-nav .nav-link:hover,
+    .navbar-nav .nav-link.active { color: var(--neon-cyan) !important; }
+
+    .nav-cta {
+      background: var(--neon-cyan);
+      color: var(--bg-deep) !important;
+      border-radius: 6px;
+      font-weight: 700 !important;
+      padding: 0.45rem 1.2rem !important;
+      transition: box-shadow var(--transition), transform var(--transition) !important;
+    }
+
+    .nav-cta:hover {
+      box-shadow: 0 0 20px rgba(0, 245, 212, 0.45);
+      transform: translateY(-1px);
+    }
+
+    .navbar-toggler {
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+
+    .navbar-toggler-icon {
+      filter: invert(1);
+    }
+
+    /* =============================================
+       HERO SECTION
+    ============================================= */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding: 8rem 0 4rem;
+    }
+
+    /* Radial glow blobs */
+    .hero-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.18;
+      pointer-events: none;
+    }
+
+    .blob-1 {
+      width: 600px; height: 600px;
+      background: var(--neon-cyan);
+      top: -100px; left: -150px;
+      animation: blobDrift 12s ease-in-out infinite alternate;
+    }
+
+    .blob-2 {
+      width: 500px; height: 500px;
+      background: var(--neon-violet);
+      bottom: -100px; right: -100px;
+      animation: blobDrift 16s ease-in-out infinite alternate-reverse;
+    }
+
+    .blob-3 {
+      width: 300px; height: 300px;
+      background: var(--neon-blue);
+      top: 40%; left: 50%;
+      animation: blobDrift 9s ease-in-out infinite alternate;
+    }
+
+    @keyframes blobDrift {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(40px, 30px) scale(1.1); }
+    }
+
+    /* Grid lines */
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,245,212,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,245,212,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(0,245,212,0.1);
+      border: 1px solid rgba(0,245,212,0.3);
+      border-radius: 100px;
+      padding: 0.3rem 1rem;
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: var(--neon-cyan);
+      margin-bottom: 1.8rem;
+      animation: fadeSlideUp 0.8s ease both;
+    }
+
+    .badge-dot {
+      width: 7px; height: 7px;
+      background: var(--neon-cyan);
+      border-radius: 50%;
+      animation: pulse 2s ease infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    .hero-headline {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: clamp(2.6rem, 6vw, 5.2rem);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      animation: fadeSlideUp 0.8s 0.1s ease both;
+    }
+
+    .hero-headline .accent { color: var(--neon-cyan); }
+
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 520px;
+      margin: 1.5rem 0 2.5rem;
+      animation: fadeSlideUp 0.8s 0.2s ease both;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      animation: fadeSlideUp 0.8s 0.3s ease both;
+    }
+
+    .btn-neon {
+      background: var(--neon-cyan);
+      color: var(--bg-deep);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.04em;
+      padding: 0.8rem 2rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: box-shadow var(--transition), transform var(--transition);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-neon:hover {
+      box-shadow: 0 0 30px rgba(0, 245, 212, 0.5);
+      transform: translateY(-2px);
+      color: var(--bg-deep);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 0.04em;
+      padding: 0.8rem 2rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: border-color var(--transition), color var(--transition);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--neon-cyan);
+      color: var(--neon-cyan);
+    }
+
+    /* Stats ticker */
+    .hero-stats {
+      display: flex;
+      gap: 2.5rem;
+      flex-wrap: wrap;
+      margin-top: 3.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      animation: fadeSlideUp 0.8s 0.4s ease both;
+    }
+
+    .stat-item .num {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .stat-item .num .unit { color: var(--neon-cyan); }
+
+    .stat-item .label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* Hero visual — city illustration panel */
+    .hero-visual {
+      position: relative;
+      animation: fadeSlideUp 0.8s 0.3s ease both;
+    }
+
+    .city-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .city-map-svg {
+      width: 100%;
+      display: block;
+    }
+
+    /* Floating info cards on the city visual */
+    .float-card {
+      position: absolute;
+      background: rgba(11, 15, 30, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.6rem 1rem;
+      font-size: 0.78rem;
+      backdrop-filter: blur(10px);
+      animation: floatCard 4s ease-in-out infinite alternate;
+    }
+
+    .float-card .card-label {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .float-card .card-value {
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--neon-cyan);
+    }
+
+    @keyframes floatCard {
+      from { transform: translateY(0); }
+      to   { transform: translateY(-8px); }
+    }
+
+    .float-card-1 { top: 12%; right: 5%; animation-delay: 0s; }
+    .float-card-2 { bottom: 18%; left: 4%; animation-delay: 1.5s; }
+    .float-card-3 { top: 50%; right: 2%; animation-delay: 0.8s; }
+
+    /* =============================================
+       SECTION SHARED
+    ============================================= */
+    section { padding: 7rem 0; }
+
+    .section-label {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--neon-cyan);
+      margin-bottom: 0.8rem;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: clamp(1.9rem, 3.5vw, 3rem);
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+
+    .section-sub {
+      color: var(--text-muted);
+      font-size: 1rem;
+      max-width: 520px;
+    }
+
+    /* =============================================
+       MARQUEE (scrolling clients bar)
+    ============================================= */
+    .marquee-wrap {
+      overflow: hidden;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 1.4rem 0;
+      background: var(--bg-mid);
+    }
+
+    .marquee-track {
+      display: flex;
+      gap: 4rem;
+      white-space: nowrap;
+      animation: marquee 20s linear infinite;
+    }
+
+    .marquee-item {
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      opacity: 0.5;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .marquee-item i { color: var(--neon-cyan); opacity: 1; }
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* =============================================
+       SERVICES SECTION
+    ============================================= */
+    #services { background: var(--bg-mid); }
+
+    /* Tab filter buttons */
+    .filter-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .filter-btn {
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      padding: 0.45rem 1.1rem;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .filter-btn:hover { border-color: var(--neon-cyan); color: var(--text-primary); }
+
+    .filter-btn.active {
+      background: var(--neon-cyan);
+      border-color: var(--neon-cyan);
+      color: var(--bg-deep);
+    }
+
+    /* Service card */
+    .service-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 2rem;
+      height: 100%;
+      transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+      position: relative;
+      overflow: hidden;
+      cursor: default;
+    }
+
+    .service-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0,245,212,0.05) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+
+    .service-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(0,245,212,0.35);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,245,212,0.1);
+    }
+
+    .service-card:hover::before { opacity: 1; }
+
+    .card-icon-wrap {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.4rem;
+      font-size: 1.3rem;
+    }
+
+    .icon-cyan { background: rgba(0,245,212,0.12); color: var(--neon-cyan); }
+    .icon-blue { background: rgba(61,139,255,0.12); color: var(--neon-blue); }
+    .icon-violet { background: rgba(157,78,221,0.12); color: var(--neon-violet); }
+
+    .service-card .card-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.05rem;
+      margin-bottom: 0.6rem;
+      color: var(--text-primary);
+    }
+
+    .service-card .card-text {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.65;
+    }
+
+    .card-tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.22rem 0.7rem;
+      border-radius: 4px;
+      margin-top: 1.2rem;
+    }
+
+    .tag-cyan { background: rgba(0,245,212,0.1); color: var(--neon-cyan); }
+    .tag-blue { background: rgba(61,139,255,0.1); color: var(--neon-blue); }
+    .tag-violet { background: rgba(157,78,221,0.1); color: var(--neon-violet); }
+
+    /* card hidden initially for filter animation */
+    .service-col {
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .service-col.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.96);
+    }
+
+    /* =============================================
+       HOW IT WORKS SECTION
+    ============================================= */
+    #how-it-works { background: var(--bg-deep); }
+
+    .timeline {
+      position: relative;
+      padding-left: 2.5rem;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0.6rem;
+      top: 0; bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--neon-cyan), var(--neon-violet));
+    }
+
+    .timeline-step {
+      position: relative;
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      transform: translateX(-20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .timeline-step.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .step-dot {
+      position: absolute;
+      left: -2.5rem;
+      top: 0.2rem;
+      width: 1.2rem; height: 1.2rem;
+      border-radius: 50%;
+      background: var(--neon-cyan);
+      border: 3px solid var(--bg-deep);
+      box-shadow: 0 0 12px var(--neon-cyan);
+    }
+
+    .step-num {
+      font-family: var(--font-display);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--neon-cyan);
+      text-transform: uppercase;
+      margin-bottom: 0.2rem;
+    }
+
+    .step-title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .step-text { color: var(--text-muted); font-size: 0.9rem; }
+
+    /* Demo panel */
+    .demo-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      overflow: hidden;
+    }
+
+    .demo-toolbar {
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border);
+      padding: 0.8rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .dot-r { width: 10px; height: 10px; border-radius: 50%; background: #ff5f57; }
+    .dot-y { width: 10px; height: 10px; border-radius: 50%; background: #febc2e; }
+    .dot-g { width: 10px; height: 10px; border-radius: 50%; background: #28c840; }
+
+    .demo-toolbar span {
+      margin-left: auto;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    .demo-body { padding: 1.5rem; }
+
+    /* Mini bar chart */
+    .mini-chart { display: flex; gap: 8px; align-items: flex-end; height: 80px; margin-top: 1rem; }
+
+    .bar {
+      flex: 1;
+      border-radius: 4px 4px 0 0;
+      position: relative;
+      cursor: pointer;
+      transition: filter 0.2s;
+    }
+
+    .bar:hover { filter: brightness(1.4); }
+
+    .bar-tooltip {
+      position: absolute;
+      top: -28px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-deep);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 0.65rem;
+      padding: 2px 6px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+    }
+
+    .bar:hover .bar-tooltip { opacity: 1; }
+
+    .chart-labels {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .chart-labels span {
+      flex: 1;
+      text-align: center;
+      font-size: 0.6rem;
+      color: var(--text-muted);
+    }
+
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(0, 245, 212, 0.1);
+      border: 1px solid rgba(0, 245, 212, 0.25);
+      border-radius: 100px;
+      font-size: 0.7rem;
+      color: var(--neon-cyan);
+      padding: 0.25rem 0.75rem;
+      font-weight: 600;
+    }
+
+    /* =============================================
+       CONTACT SECTION
+    ============================================= */
+    #contact { background: var(--bg-mid); }
+
+    .contact-form-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 2.5rem;
+    }
+
+    .form-label {
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .form-control, .form-select {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      padding: 0.75rem 1rem;
+      font-family: var(--font-body);
+      font-size: 0.93rem;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .form-control::placeholder { color: rgba(122,138,170,0.5); }
+    .form-select option { background: var(--bg-card); }
+
+    .form-control:focus, .form-select:focus {
+      background: rgba(255,255,255,0.05);
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 0 3px rgba(0,245,212,0.12);
+      color: var(--text-primary);
+      outline: none;
+    }
+
+    .form-control.is-invalid, .form-select.is-invalid {
+      border-color: #ff4d6d !important;
+      box-shadow: 0 0 0 3px rgba(255,77,109,0.12) !important;
+    }
+
+    .invalid-feedback {
+      font-size: 0.78rem;
+      color: #ff4d6d;
+      margin-top: 0.3rem;
+      display: none;
+    }
+
+    .was-validated .form-control:invalid ~ .invalid-feedback,
+    .form-control.is-invalid ~ .invalid-feedback,
+    .form-select.is-invalid ~ .invalid-feedback {
+      display: block;
+    }
+
+    .form-check-input:checked {
+      background-color: var(--neon-cyan);
+      border-color: var(--neon-cyan);
+    }
+
+    .form-check-label { font-size: 0.88rem; color: var(--text-muted); }
+    .form-check-label a { color: var(--neon-cyan); }
+
+    /* Submit state */
+    #submitBtn {
+      width: 100%;
+      padding: 0.9rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      transition: all var(--transition);
+    }
+
+    #submitBtn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Success alert */
+    .success-alert {
+      display: none;
+      background: rgba(0,245,212,0.1);
+      border: 1px solid rgba(0,245,212,0.3);
+      border-radius: 8px;
+      padding: 1rem 1.4rem;
+      color: var(--neon-cyan);
+      font-size: 0.9rem;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 1.2rem;
+    }
+
+    .success-alert.show { display: flex; }
+
+    /* Contact info side */
+    .contact-info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1.8rem;
+    }
+
+    .contact-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      background: rgba(0,245,212,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--neon-cyan);
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .contact-info-item .ci-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.1rem;
+    }
+
+    .contact-info-item .ci-value {
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    /* =============================================
+       FOOTER
+    ============================================= */
+    footer {
+      background: var(--bg-deep);
+      border-top: 1px solid var(--border);
+      padding: 3rem 0 1.5rem;
+    }
+
+    .footer-logo {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.4rem;
+      letter-spacing: -0.03em;
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+
+    .footer-logo span { color: var(--neon-cyan); }
+
+    .footer-tagline {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      margin-top: 0.5rem;
+      max-width: 240px;
+    }
+
+    .footer-col-title {
+      font-family: var(--font-display);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1.1rem;
+    }
+
+    .footer-links { list-style: none; padding: 0; }
+
+    .footer-links li { margin-bottom: 0.55rem; }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color var(--transition);
+    }
+
+    .footer-links a:hover { color: var(--neon-cyan); }
+
+    .social-links { display: flex; gap: 0.75rem; margin-top: 1rem; }
+
+    .social-btn {
+      width: 38px; height: 38px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: border-color var(--transition), color var(--transition);
+    }
+
+    .social-btn:hover { border-color: var(--neon-cyan); color: var(--neon-cyan); }
+
+    .footer-divider {
+      border-color: var(--border);
+      margin: 2rem 0 1.5rem;
+    }
+
+    .footer-bottom {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* =============================================
+       ANIMATIONS
+    ============================================= */
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in-up {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .fade-in-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* =============================================
+       RESPONSIVE TWEAKS
+    ============================================= */
+    @media (max-width: 767px) {
+      .hero-stats { gap: 1.5rem; }
+      .float-card { font-size: 0.72rem; }
+      .contact-form-wrap { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =============================================
+       NAVBAR (Bootstrap Navbar component)
+  ============================================= -->
+  <nav id="mainNav" class="navbar navbar-expand-lg">
+    <div class="container">
+      <a class="nav-logo" href="#hero">Nex<span>Urban</span></a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navCollapse"
+        aria-controls="navCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navCollapse">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1 mt-3 mt-lg-0">
+          <li class="nav-item"><a class="nav-link" href="#hero">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="#how-it-works">How It Works</a></li>
+          <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+          <li class="nav-item ms-lg-2">
+            <a class="nav-link nav-cta" href="#contact">Get a Demo</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- =============================================
+       HERO SECTION
+  ============================================= -->
+  <section id="hero">
+    <!-- Background elements -->
+    <div class="hero-grid"></div>
+    <div class="hero-blob blob-1"></div>
+    <div class="hero-blob blob-2"></div>
+    <div class="hero-blob blob-3"></div>
+
+    <div class="container position-relative">
+      <div class="row align-items-center gy-5">
+
+        <!-- Left: headline & CTA -->
+        <div class="col-lg-6">
+          <div class="hero-badge">
+            <span class="badge-dot"></span>
+            Now deploying in 40+ smart cities
+          </div>
+
+          <h1 class="hero-headline">
+            The OS for<br>
+            <span class="accent">Intelligent</span><br>
+            Urban Life
+          </h1>
+
+          <p class="hero-sub">
+            NexUrban fuses real-time AI with city infrastructure — optimizing traffic,
+            energy, transit, and public safety from a single unified platform.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#contact" class="btn-neon">
+              <i class="bi bi-lightning-charge-fill"></i> Request Demo
+            </a>
+            <a href="#services" class="btn-ghost">
+              <i class="bi bi-play-circle"></i> Explore Platform
+            </a>
+          </div>
+
+          <!-- Stats -->
+          <div class="hero-stats">
+            <div class="stat-item">
+              <div class="num" data-target="40">0<span class="unit">+</span></div>
+              <div class="label">Cities deployed</div>
+            </div>
+            <div class="stat-item">
+              <div class="num" data-target="2.4">0<span class="unit">B</span></div>
+              <div class="label">Data points / day</div>
+            </div>
+            <div class="stat-item">
+              <div class="num" data-target="38">0<span class="unit">%</span></div>
+              <div class="label">Avg. emissions cut</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: city dashboard visual -->
+        <div class="col-lg-6 hero-visual">
+          <div class="city-panel position-relative">
+            <!-- SVG city illustration / dashboard mockup -->
+            <svg class="city-map-svg" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+              <!-- Background -->
+              <rect width="600" height="400" fill="#0b0f1e"/>
+
+              <!-- Grid roads -->
+              <g stroke="rgba(0,245,212,0.08)" stroke-width="1">
+                <line x1="0" y1="100" x2="600" y2="100"/>
+                <line x1="0" y1="200" x2="600" y2="200"/>
+                <line x1="0" y1="300" x2="600" y2="300"/>
+                <line x1="150" y1="0" x2="150" y2="400"/>
+                <line x1="300" y1="0" x2="300" y2="400"/>
+                <line x1="450" y1="0" x2="450" y2="400"/>
+              </g>
+
+              <!-- Buildings (grouped by zone) -->
+              <!-- Zone 1 - Financial -->
+              <rect x="30" y="60" width="40" height="40" fill="rgba(0,245,212,0.15)" rx="2"/>
+              <rect x="80" y="40" width="35" height="60" fill="rgba(0,245,212,0.2)" rx="2"/>
+              <rect x="35" y="35" width="18" height="25" fill="rgba(0,245,212,0.1)" rx="1"/>
+
+              <!-- Zone 2 -->
+              <rect x="180" y="50" width="50" height="50" fill="rgba(61,139,255,0.15)" rx="2"/>
+              <rect x="240" y="30" width="30" height="70" fill="rgba(61,139,255,0.25)" rx="2"/>
+
+              <!-- Zone 3 -->
+              <rect x="330" y="55" width="45" height="45" fill="rgba(157,78,221,0.2)" rx="2"/>
+              <rect x="385" y="40" width="25" height="60" fill="rgba(157,78,221,0.15)" rx="2"/>
+              <rect x="420" y="50" width="20" height="50" fill="rgba(157,78,221,0.1)" rx="2"/>
+
+              <!-- Zone 4 -->
+              <rect x="480" y="45" width="35" height="55" fill="rgba(0,245,212,0.12)" rx="2"/>
+              <rect x="525" y="60" width="45" height="40" fill="rgba(0,245,212,0.08)" rx="2"/>
+
+              <!-- LOWER blocks -->
+              <rect x="30" y="220" width="50" height="60" fill="rgba(0,245,212,0.1)" rx="2"/>
+              <rect x="90" y="235" width="35" height="45" fill="rgba(0,245,212,0.15)" rx="2"/>
+
+              <rect x="170" y="215" width="60" height="70" fill="rgba(61,139,255,0.12)" rx="2"/>
+              <rect x="240" y="230" width="40" height="55" fill="rgba(61,139,255,0.18)" rx="2"/>
+
+              <rect x="320" y="220" width="55" height="65" fill="rgba(157,78,221,0.15)" rx="2"/>
+              <rect x="385" y="235" width="30" height="50" fill="rgba(157,78,221,0.1)" rx="2"/>
+
+              <rect x="470" y="218" width="60" height="68" fill="rgba(0,245,212,0.1)" rx="2"/>
+
+              <!-- Windows on buildings (detail) -->
+              <g fill="rgba(0,245,212,0.5)" opacity="0.6">
+                <rect x="35" y="67" width="5" height="5" rx="1"/>
+                <rect x="45" y="67" width="5" height="5" rx="1"/>
+                <rect x="55" y="67" width="5" height="5" rx="1"/>
+                <rect x="35" y="77" width="5" height="5" rx="1"/>
+                <rect x="55" y="77" width="5" height="5" rx="1"/>
+              </g>
+
+              <!-- Active roads (neon) -->
+              <line x1="0" y1="200" x2="600" y2="200" stroke="rgba(0,245,212,0.3)" stroke-width="2"/>
+              <line x1="300" y1="0" x2="300" y2="400" stroke="rgba(0,245,212,0.3)" stroke-width="2"/>
+
+              <!-- Moving vehicles (animated dots) -->
+              <circle r="3" fill="#00f5d4" opacity="0.8">
+                <animateMotion dur="6s" repeatCount="indefinite">
+                  <mpath href="#road1"/>
+                </animateMotion>
+              </circle>
+              <circle r="3" fill="#3d8bff" opacity="0.8">
+                <animateMotion dur="8s" repeatCount="indefinite" begin="2s">
+                  <mpath href="#road2"/>
+                </animateMotion>
+              </circle>
+              <circle r="3" fill="#9d4edd" opacity="0.8">
+                <animateMotion dur="7s" repeatCount="indefinite" begin="1s">
+                  <mpath href="#road1"/>
+                </animateMotion>
+              </circle>
+              <circle r="3" fill="#00f5d4" opacity="0.6">
+                <animateMotion dur="9s" repeatCount="indefinite" begin="3s">
+                  <mpath href="#road2"/>
+                </animateMotion>
+              </circle>
+
+              <defs>
+                <path id="road1" d="M0,200 H600"/>
+                <path id="road2" d="M300,0 V400"/>
+              </defs>
+
+              <!-- Signal nodes (intersection pulse) -->
+              <circle cx="300" cy="200" r="8" fill="none" stroke="rgba(0,245,212,0.6)" stroke-width="1">
+                <animate attributeName="r" from="8" to="20" dur="2s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" from="0.7" to="0" dur="2s" repeatCount="indefinite"/>
+              </circle>
+              <circle cx="300" cy="200" r="4" fill="rgba(0,245,212,0.9)"/>
+
+              <circle cx="150" cy="100" r="6" fill="none" stroke="rgba(61,139,255,0.5)" stroke-width="1">
+                <animate attributeName="r" from="6" to="16" dur="3s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" from="0.6" to="0" dur="3s" repeatCount="indefinite"/>
+              </circle>
+              <circle cx="150" cy="100" r="3" fill="rgba(61,139,255,0.9)"/>
+
+              <circle cx="450" cy="300" r="6" fill="none" stroke="rgba(157,78,221,0.5)" stroke-width="1">
+                <animate attributeName="r" from="6" to="14" dur="2.5s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" from="0.6" to="0" dur="2.5s" repeatCount="indefinite"/>
+              </circle>
+              <circle cx="450" cy="300" r="3" fill="rgba(157,78,221,0.9)"/>
+
+              <!-- Bottom bar: status strip -->
+              <rect x="0" y="365" width="600" height="35" fill="rgba(0,0,0,0.4)"/>
+              <text x="16" y="387" font-family="monospace" font-size="10" fill="rgba(0,245,212,0.7)">●  LIVE  |  12,430 vehicles tracked  |  Avg. delay: 1.2 min  |  Air Quality: GOOD</text>
+            </svg>
+
+            <!-- Floating info cards -->
+            <div class="float-card float-card-1">
+              <div class="card-label">Traffic Flow</div>
+              <div class="card-value">↑ 94% optimal</div>
+            </div>
+            <div class="float-card float-card-2">
+              <div class="card-label">Energy Saved</div>
+              <div class="card-value">2.1 GWh today</div>
+            </div>
+            <div class="float-card float-card-3">
+              <div class="card-label">Incidents</div>
+              <div class="card-value" style="color:#ff4d6d">↓ 3 active</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================
+       MARQUEE (Bootstrap — no direct component, custom)
+  ============================================= -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <!-- duplicated for seamless loop -->
+      <span class="marquee-item"><i class="bi bi-buildings"></i> Tokyo Smart Grid</span>
+      <span class="marquee-item"><i class="bi bi-geo-alt"></i> Dubai CityBrain</span>
+      <span class="marquee-item"><i class="bi bi-lightning"></i> Amsterdam EV Network</span>
+      <span class="marquee-item"><i class="bi bi-shield-check"></i> Singapore SafeCity</span>
+      <span class="marquee-item"><i class="bi bi-train-front"></i> Berlin Transit AI</span>
+      <span class="marquee-item"><i class="bi bi-droplet"></i> Barcelona Water OS</span>
+      <span class="marquee-item"><i class="bi bi-buildings"></i> Seoul Digital Twin</span>
+      <!-- duplicate -->
+      <span class="marquee-item"><i class="bi bi-buildings"></i> Tokyo Smart Grid</span>
+      <span class="marquee-item"><i class="bi bi-geo-alt"></i> Dubai CityBrain</span>
+      <span class="marquee-item"><i class="bi bi-lightning"></i> Amsterdam EV Network</span>
+      <span class="marquee-item"><i class="bi bi-shield-check"></i> Singapore SafeCity</span>
+      <span class="marquee-item"><i class="bi bi-train-front"></i> Berlin Transit AI</span>
+      <span class="marquee-item"><i class="bi bi-droplet"></i> Barcelona Water OS</span>
+      <span class="marquee-item"><i class="bi bi-buildings"></i> Seoul Digital Twin</span>
+    </div>
+  </div>
+
+  <!-- =============================================
+       SERVICES SECTION (Bootstrap Cards + JS Filter)
+  ============================================= -->
+  <section id="services">
+    <div class="container">
+
+      <div class="row align-items-end mb-4">
+        <div class="col-lg-6 fade-in-up">
+          <span class="section-label">Platform Modules</span>
+          <h2 class="section-title">Every System.<br>One Intelligent Platform.</h2>
+          <p class="section-sub">
+            Modular, API-first architecture that plugs into your existing city infrastructure
+            and starts delivering insights from day one.
+          </p>
+        </div>
+
+        <!-- Filter tabs (JS interactive feature) -->
+        <div class="col-lg-6 fade-in-up">
+          <div class="filter-tabs justify-content-lg-end">
+            <button class="filter-btn active" data-filter="all">All Modules</button>
+            <button class="filter-btn" data-filter="mobility">Mobility</button>
+            <button class="filter-btn" data-filter="energy">Energy</button>
+            <button class="filter-btn" data-filter="safety">Safety</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="servicesGrid" class="row g-4">
+
+        <!-- Card 1 -->
+        <div class="col-md-6 col-lg-4 service-col fade-in-up" data-category="mobility">
+          <div class="service-card">
+            <div class="card-icon-wrap icon-cyan">
+              <i class="bi bi-traffic-cone-fill"></i>
+            </div>
+            <h3 class="card-title">Adaptive Traffic AI</h3>
+            <p class="card-text">
+              Real-time signal optimization across 10,000+ intersections. Our neural network
+              reduces average city commute times by up to 31% within 90 days.
+            </p>
+            <span class="card-tag tag-cyan">Mobility</span>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="col-md-6 col-lg-4 service-col fade-in-up" data-category="energy" style="transition-delay:0.05s">
+          <div class="service-card">
+            <div class="card-icon-wrap icon-blue">
+              <i class="bi bi-lightning-charge-fill"></i>
+            </div>
+            <h3 class="card-title">Smart Grid Engine</h3>
+            <p class="card-text">
+              Predictive load balancing and renewable integration. Continuously forecasts
+              demand, routes power dynamically, and flags inefficiencies in real time.
+            </p>
+            <span class="card-tag tag-blue">Energy</span>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="col-md-6 col-lg-4 service-col fade-in-up" data-category="safety" style="transition-delay:0.1s">
+          <div class="service-card">
+            <div class="card-icon-wrap icon-violet">
+              <i class="bi bi-shield-fill-check"></i>
+            </div>
+            <h3 class="card-title">Urban Safety Mesh</h3>
+            <p class="card-text">
+              Privacy-first anomaly detection across public spaces. Computer vision + audio
+              analytics that alert responders in under 8 seconds — no facial recognition.
+            </p>
+            <span class="card-tag tag-violet">Safety</span>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="col-md-6 col-lg-4 service-col fade-in-up" data-category="mobility" style="transition-delay:0.05s">
+          <div class="service-card">
+            <div class="card-icon-wrap icon-cyan">
+              <i class="bi bi-bus-front-fill"></i>
+            </div>
+            <h3 class="card-title">Transit Intelligence</h3>
+            <p class="card-text">
+              Demand-responsive bus and rail scheduling. AI bundles micro-mobility, ride-share,
+              and public transit into one seamless multimodal journey planner.
+            </p>
+            <span class="card-tag tag-cyan">Mobility</span>
+          </div>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="col-md-6 col-lg-4 service-col fade-in-up" data-category="energy" style="transition-delay:0.1s">
+          <div class="service-card">
+            <div class="card-icon-wrap icon-blue">
+              <i class="bi bi-thermometer-half"></i>
+            </div>
+            <h3 class="card-title">Building Climate OS</h3>
+            <p class="card-text">
+              AI-managed HVAC, lighting, and occupancy across entire city districts.
+              Proven to cut building energy consumption by 22–40% within the first year.
+            </p>
+            <span class="card-tag tag-blue">Energy</span>
+          </div>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="col-md-6 col-lg-4 service-col fade-in-up" data-category="safety" style="transition-delay:0.15s">
+          <div class="service-card">
+            <div class="card-icon-wrap icon-violet">
+              <i class="bi bi-activity"></i>
+            </div>
+            <h3 class="card-title">Crisis Command Center</h3>
+            <p class="card-text">
+              Unified situational awareness for emergencies. Correlates data from IoT sensors,
+              social signals, and dispatch logs to coordinate first-responders intelligently.
+            </p>
+            <span class="card-tag tag-violet">Safety</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================
+       HOW IT WORKS SECTION (Bootstrap Accordion + timeline)
+  ============================================= -->
+  <section id="how-it-works">
+    <div class="container">
+      <div class="row align-items-center gy-5">
+
+        <!-- Left: timeline steps -->
+        <div class="col-lg-5 fade-in-up">
+          <span class="section-label">Process</span>
+          <h2 class="section-title mb-4">From sensors to<br>decisions in <span style="color:var(--neon-cyan)">milliseconds.</span></h2>
+
+          <div class="timeline">
+            <div class="timeline-step">
+              <div class="step-dot"></div>
+              <div class="step-num">Step 01</div>
+              <div class="step-title">Data Ingestion Layer</div>
+              <p class="step-text">14,000+ city IoT endpoints stream into NexUrban's real-time pipeline — traffic cams, air sensors, smart meters, emergency radios.</p>
+            </div>
+            <div class="timeline-step">
+              <div class="step-dot" style="background:var(--neon-blue);box-shadow:0 0 12px var(--neon-blue)"></div>
+              <div class="step-num" style="color:var(--neon-blue)">Step 02</div>
+              <div class="step-title">AI Inference Engine</div>
+              <p class="step-text">Our edge-first ML models process, classify, and predict urban events locally — with cloud sync for city-wide pattern learning.</p>
+            </div>
+            <div class="timeline-step">
+              <div class="step-dot" style="background:var(--neon-violet);box-shadow:0 0 12px var(--neon-violet)"></div>
+              <div class="step-num" style="color:var(--neon-violet)">Step 03</div>
+              <div class="step-title">Automated Action</div>
+              <p class="step-text">Smart actuators respond autonomously — signals re-phase, power reroutes, alerts dispatch — closing the loop without human delay.</p>
+            </div>
+            <div class="timeline-step">
+              <div class="step-dot"></div>
+              <div class="step-num">Step 04</div>
+              <div class="step-title">Command Dashboard</div>
+              <p class="step-text">City operators see a live 3D digital twin, override any automation, drill into any sensor feed, and run scenario simulations.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: interactive demo panel (Bootstrap Accordion) -->
+        <div class="col-lg-7 fade-in-up">
+          <div class="demo-panel">
+            <div class="demo-toolbar">
+              <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
+              <span>NexUrban · CityOS Dashboard v3.2</span>
+            </div>
+            <div class="demo-body">
+              <!-- Live badge + title -->
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <div>
+                  <div style="font-family:var(--font-display);font-weight:700;font-size:0.95rem;">City Overview — Live</div>
+                  <div style="font-size:0.78rem;color:var(--text-muted);">Central District · March 2026</div>
+                </div>
+                <span class="live-badge">
+                  <span class="badge-dot"></span> Live
+                </span>
+              </div>
+
+              <!-- KPI pills -->
+              <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="card-tag tag-cyan">Traffic: 94% smooth</span>
+                <span class="card-tag tag-blue">Energy: −22% vs avg</span>
+                <span class="card-tag tag-violet">Incidents: 3 active</span>
+              </div>
+
+              <!-- Bar chart: hourly traffic volume -->
+              <div style="font-size:0.78rem;font-weight:500;color:var(--text-muted);margin-bottom:0.25rem;">Hourly Traffic Volume (vehicles/hr)</div>
+              <div class="mini-chart" id="miniChart">
+                <!-- Bars injected by JS -->
+              </div>
+              <div class="chart-labels" id="chartLabels"></div>
+
+              <!-- Bootstrap Accordion — city module status -->
+              <div class="mt-3" style="font-size:0.78rem;font-weight:600;color:var(--text-muted);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:0.7rem;">
+                Module Status
+              </div>
+              <div class="accordion accordion-flush" id="moduleAccordion">
+
+                <div class="accordion-item" style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button"
+                      data-bs-toggle="collapse" data-bs-target="#mod1"
+                      style="background:transparent;color:var(--text-primary);font-family:var(--font-display);font-size:0.88rem;font-weight:600;box-shadow:none;border-radius:8px;padding:0.75rem 1rem;">
+                      <i class="bi bi-traffic-cone-fill me-2" style="color:var(--neon-cyan)"></i> Traffic AI
+                      <span class="ms-auto badge" style="background:rgba(0,245,212,0.12);color:var(--neon-cyan);font-size:0.7rem;">NOMINAL</span>
+                    </button>
+                  </h2>
+                  <div id="mod1" class="accordion-collapse collapse" data-bs-parent="#moduleAccordion">
+                    <div class="accordion-body" style="color:var(--text-muted);font-size:0.85rem;padding:0.5rem 1rem 1rem;">
+                      287 intersections active · Avg cycle: 42s · Top corridor: Main St (98% flow)
+                    </div>
+                  </div>
+                </div>
+
+                <div class="accordion-item" style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button"
+                      data-bs-toggle="collapse" data-bs-target="#mod2"
+                      style="background:transparent;color:var(--text-primary);font-family:var(--font-display);font-size:0.88rem;font-weight:600;box-shadow:none;border-radius:8px;padding:0.75rem 1rem;">
+                      <i class="bi bi-lightning-charge-fill me-2" style="color:var(--neon-blue)"></i> Smart Grid
+                      <span class="ms-auto badge" style="background:rgba(61,139,255,0.12);color:var(--neon-blue);font-size:0.7rem;">SAVING</span>
+                    </button>
+                  </h2>
+                  <div id="mod2" class="accordion-collapse collapse" data-bs-parent="#moduleAccordion">
+                    <div class="accordion-body" style="color:var(--text-muted);font-size:0.85rem;padding:0.5rem 1rem 1rem;">
+                      Load balanced across 9 substations · Solar uptake: 61% · Saved 2.1 GWh today
+                    </div>
+                  </div>
+                </div>
+
+                <div class="accordion-item" style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button"
+                      data-bs-toggle="collapse" data-bs-target="#mod3"
+                      style="background:transparent;color:var(--text-primary);font-family:var(--font-display);font-size:0.88rem;font-weight:600;box-shadow:none;border-radius:8px;padding:0.75rem 1rem;">
+                      <i class="bi bi-shield-fill-check me-2" style="color:var(--neon-violet)"></i> Safety Mesh
+                      <span class="ms-auto badge" style="background:rgba(255,77,109,0.15);color:#ff4d6d;font-size:0.7rem;">3 ALERTS</span>
+                    </button>
+                  </h2>
+                  <div id="mod3" class="accordion-collapse collapse" data-bs-parent="#moduleAccordion">
+                    <div class="accordion-body" style="color:var(--text-muted);font-size:0.85rem;padding:0.5rem 1rem 1rem;">
+                      Zone 4: crowd density alert · Zone 7: noise anomaly · Zone 12: object detection
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================
+       CONTACT SECTION (Bootstrap form + JS validation)
+  ============================================= -->
+  <section id="contact">
+    <div class="container">
+      <div class="row gy-5">
+
+        <!-- Left: info -->
+        <div class="col-lg-4 fade-in-up">
+          <span class="section-label">Get in Touch</span>
+          <h2 class="section-title mb-4">Let's build your<br>smarter city.</h2>
+          <p class="section-sub mb-4" style="max-width:100%">
+            Whether you're a municipality, transit authority, or infrastructure developer —
+            we'll map the right NexUrban modules to your city's challenges.
+          </p>
+
+          <div class="contact-info-item">
+            <div class="contact-icon"><i class="bi bi-geo-alt-fill"></i></div>
+            <div>
+              <div class="ci-label">Headquarters</div>
+              <div class="ci-value">1 Smart City Plaza, Singapore 018989</div>
+            </div>
+          </div>
+
+          <div class="contact-info-item">
+            <div class="contact-icon"><i class="bi bi-envelope-fill"></i></div>
+            <div>
+              <div class="ci-label">Email</div>
+              <div class="ci-value">hello@nexurban.io</div>
+            </div>
+          </div>
+
+          <div class="contact-info-item">
+            <div class="contact-icon"><i class="bi bi-telephone-fill"></i></div>
+            <div>
+              <div class="ci-label">Phone</div>
+              <div class="ci-value">+65 6800 2400</div>
+            </div>
+          </div>
+
+          <!-- Bootstrap Toast trigger -->
+          <button id="toastTrigger" class="btn-ghost mt-2" style="font-size:0.82rem;padding:0.5rem 1.2rem;">
+            <i class="bi bi-calendar3"></i> Book a Call
+          </button>
+
+          <!-- Bootstrap Toast -->
+          <div class="position-fixed bottom-0 end-0 p-3" style="z-index:2000">
+            <div id="bookToast" class="toast align-items-center text-bg-dark border-0" role="alert">
+              <div class="d-flex">
+                <div class="toast-body" style="font-size:0.88rem;">
+                  <i class="bi bi-check-circle-fill me-2" style="color:var(--neon-cyan)"></i>
+                  Calendly link sent to your email!
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: form -->
+        <div class="col-lg-8 fade-in-up">
+          <div class="contact-form-wrap">
+            <form id="contactForm" novalidate>
+
+              <div class="row g-3">
+                <!-- First Name -->
+                <div class="col-sm-6">
+                  <label class="form-label" for="firstName">First Name *</label>
+                  <input type="text" class="form-control" id="firstName" placeholder="Jane" required minlength="2" />
+                  <div class="invalid-feedback">Please enter your first name (min. 2 characters).</div>
+                </div>
+                <!-- Last Name -->
+                <div class="col-sm-6">
+                  <label class="form-label" for="lastName">Last Name *</label>
+                  <input type="text" class="form-control" id="lastName" placeholder="Smith" required minlength="2" />
+                  <div class="invalid-feedback">Please enter your last name.</div>
+                </div>
+                <!-- Email -->
+                <div class="col-sm-6">
+                  <label class="form-label" for="emailInput">Work Email *</label>
+                  <input type="email" class="form-control" id="emailInput" placeholder="jane@cityname.gov" required />
+                  <div class="invalid-feedback">Please enter a valid email address.</div>
+                </div>
+                <!-- Phone -->
+                <div class="col-sm-6">
+                  <label class="form-label" for="phoneInput">Phone</label>
+                  <input type="tel" class="form-control" id="phoneInput" placeholder="+1 202 555 0100" />
+                </div>
+                <!-- Organisation -->
+                <div class="col-sm-6">
+                  <label class="form-label" for="orgInput">Organisation *</label>
+                  <input type="text" class="form-control" id="orgInput" placeholder="City of Auckland" required />
+                  <div class="invalid-feedback">Please enter your organisation.</div>
+                </div>
+                <!-- Role -->
+                <div class="col-sm-6">
+                  <label class="form-label" for="roleSelect">Your Role *</label>
+                  <select class="form-select" id="roleSelect" required>
+                    <option value="" disabled selected>Select role...</option>
+                    <option>City Mayor / Official</option>
+                    <option>Urban Planner</option>
+                    <option>CTO / IT Director</option>
+                    <option>Infrastructure Engineer</option>
+                    <option>Policy Researcher</option>
+                    <option>Private Developer</option>
+                    <option>Other</option>
+                  </select>
+                  <div class="invalid-feedback">Please select your role.</div>
+                </div>
+                <!-- Module interest -->
+                <div class="col-12">
+                  <label class="form-label">Interested In (select all that apply)</label>
+                  <div class="d-flex flex-wrap gap-3 mt-1">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="chkTraffic" value="Traffic AI"/>
+                      <label class="form-check-label" for="chkTraffic">Traffic AI</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="chkEnergy" value="Smart Grid"/>
+                      <label class="form-check-label" for="chkEnergy">Smart Grid</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="chkSafety" value="Safety Mesh"/>
+                      <label class="form-check-label" for="chkSafety">Safety Mesh</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="chkTransit" value="Transit Intelligence"/>
+                      <label class="form-check-label" for="chkTransit">Transit Intelligence</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="chkBuilding" value="Building Climate"/>
+                      <label class="form-check-label" for="chkBuilding">Building Climate OS</label>
+                    </div>
+                  </div>
+                </div>
+                <!-- Message -->
+                <div class="col-12">
+                  <label class="form-label" for="msgInput">Message *</label>
+                  <textarea class="form-control" id="msgInput" rows="4"
+                    placeholder="Tell us about your city's biggest infrastructure challenge..." required minlength="20"></textarea>
+                  <div class="invalid-feedback">Please describe your challenge (min. 20 characters).</div>
+                </div>
+                <!-- Privacy -->
+                <div class="col-12">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="privacyCheck" required />
+                    <label class="form-check-label" for="privacyCheck">
+                      I agree to NexUrban's <a href="#">Privacy Policy</a> and consent to being contacted. *
+                    </label>
+                    <div class="invalid-feedback">You must agree to our privacy policy.</div>
+                  </div>
+                </div>
+                <!-- Submit -->
+                <div class="col-12">
+                  <button type="submit" id="submitBtn" class="btn-neon">
+                    <i class="bi bi-send-fill"></i> Send Message
+                  </button>
+                </div>
+              </div>
+
+              <!-- Success alert (shown after submit) -->
+              <div class="success-alert" id="successAlert">
+                <i class="bi bi-check-circle-fill fs-5"></i>
+                <div>
+                  <strong>Message sent!</strong> Our smart-city team will reach out within 24 hours.
+                </div>
+              </div>
+
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================
+       FOOTER
+  ============================================= -->
+  <footer>
+    <div class="container">
+      <div class="row gy-4">
+
+        <div class="col-lg-4">
+          <a class="footer-logo" href="#hero">Nex<span>Urban</span></a>
+          <p class="footer-tagline">
+            The intelligent operating system for the world's most livable cities.
+          </p>
+          <div class="social-links">
+            <a href="#" class="social-btn"><i class="bi bi-twitter-x"></i></a>
+            <a href="#" class="social-btn"><i class="bi bi-linkedin"></i></a>
+            <a href="#" class="social-btn"><i class="bi bi-github"></i></a>
+            <a href="#" class="social-btn"><i class="bi bi-youtube"></i></a>
+          </div>
+        </div>
+
+        <div class="col-6 col-lg-2 offset-lg-1">
+          <div class="footer-col-title">Platform</div>
+          <ul class="footer-links">
+            <li><a href="#">Traffic AI</a></li>
+            <li><a href="#">Smart Grid</a></li>
+            <li><a href="#">Safety Mesh</a></li>
+            <li><a href="#">Transit Intelligence</a></li>
+            <li><a href="#">City Digital Twin</a></li>
+          </ul>
+        </div>
+
+        <div class="col-6 col-lg-2">
+          <div class="footer-col-title">Company</div>
+          <ul class="footer-links">
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Press</a></li>
+            <li><a href="#">Partners</a></li>
+            <li><a href="#">Blog</a></li>
+          </ul>
+        </div>
+
+        <div class="col-6 col-lg-2">
+          <div class="footer-col-title">Resources</div>
+          <ul class="footer-links">
+            <li><a href="#">Documentation</a></li>
+            <li><a href="#">API Reference</a></li>
+            <li><a href="#">Case Studies</a></li>
+            <li><a href="#">Whitepapers</a></li>
+            <li><a href="#">Status</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <hr class="footer-divider" />
+
+      <div class="footer-bottom">
+        <span>© 2026 NexUrban Technologies Pte. Ltd. All rights reserved.</span>
+        <span>
+          <a href="#" style="color:var(--text-muted);text-decoration:none;margin-right:1rem;">Privacy</a>
+          <a href="#" style="color:var(--text-muted);text-decoration:none;">Terms</a>
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap 5 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // =============================================
+    // NAVBAR: scroll effect
+    // =============================================
+    const nav = document.getElementById('mainNav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+      // Active nav link highlight
+      document.querySelectorAll('.navbar-nav .nav-link[href^="#"]').forEach(link => {
+        const target = document.querySelector(link.getAttribute('href'));
+        if (!target) return;
+        const rect = target.getBoundingClientRect();
+        link.classList.toggle('active', rect.top <= 100 && rect.bottom > 100);
+      });
+    });
+
+    // =============================================
+    // COUNTER ANIMATION (hero stats)
+    // =============================================
+    function animateCount(el, target, isFloat = false, suffix = '') {
+      const duration = 1800;
+      const start = performance.now();
+      const update = (now) => {
+        const progress = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        const value = ease * target;
+        const display = isFloat ? value.toFixed(1) : Math.floor(value);
+        el.innerHTML = display + suffix;
+        if (progress < 1) requestAnimationFrame(update);
+      };
+      requestAnimationFrame(update);
+    }
+
+    // Trigger on IntersectionObserver for hero stats
+    const statNums = document.querySelectorAll('.stat-item .num');
+    const statsObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const target = parseFloat(el.dataset.target);
+          const isFloat = !Number.isInteger(target);
+          const suffix = el.querySelector('.unit') ? `<span class="unit">${el.querySelector('.unit').textContent}</span>` : '';
+          animateCount(el, target, isFloat, suffix);
+          statsObserver.unobserve(el);
+        }
+      });
+    }, { threshold: 0.5 });
+    statNums.forEach(el => statsObserver.observe(el));
+
+    // =============================================
+    // SCROLL REVEAL (fade-in-up elements)
+    // =============================================
+    const revealObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.fade-in-up, .timeline-step').forEach(el => revealObserver.observe(el));
+
+    // =============================================
+    // SERVICE CARD FILTER (non-trivial JS interactive feature)
+    // =============================================
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const serviceCols = document.querySelectorAll('.service-col');
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Update active button
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const filter = btn.dataset.filter;
+
+        serviceCols.forEach(col => {
+          const match = filter === 'all' || col.dataset.category === filter;
+          if (match) {
+            col.classList.remove('hidden');
+            // Re-trigger fade-in
+            col.style.opacity = '0';
+            col.style.transform = 'scale(0.96)';
+            requestAnimationFrame(() => {
+              col.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+              col.style.opacity = '1';
+              col.style.transform = 'scale(1)';
+            });
+          } else {
+            col.classList.add('hidden');
+          }
+        });
+      });
+    });
+
+    // =============================================
+    // MINI BAR CHART (demo panel)
+    // =============================================
+    const chartData = [
+      { label: '06h', value: 38, color: 'var(--neon-cyan)' },
+      { label: '08h', value: 82, color: 'var(--neon-cyan)' },
+      { label: '10h', value: 95, color: 'var(--neon-blue)' },
+      { label: '12h', value: 70, color: 'var(--neon-cyan)' },
+      { label: '14h', value: 88, color: 'var(--neon-blue)' },
+      { label: '16h', value: 100, color: 'var(--neon-violet)' },
+      { label: '18h', value: 92, color: 'var(--neon-violet)' },
+      { label: '20h', value: 55, color: 'var(--neon-cyan)' },
+      { label: '22h', value: 28, color: 'var(--neon-cyan)' },
+    ];
+
+    const chartEl = document.getElementById('miniChart');
+    const labelsEl = document.getElementById('chartLabels');
+
+    if (chartEl && labelsEl) {
+      chartData.forEach(d => {
+        // Bar
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.height = d.value + '%';
+        bar.style.background = `linear-gradient(to top, ${d.color}88, ${d.color})`;
+        bar.innerHTML = `<span class="bar-tooltip">${d.value * 120} v/hr</span>`;
+        chartEl.appendChild(bar);
+
+        // Label
+        const lbl = document.createElement('span');
+        lbl.textContent = d.label;
+        labelsEl.appendChild(lbl);
+      });
+    }
+
+    // =============================================
+    // CONTACT FORM VALIDATION (client-side, JS)
+    // =============================================
+    const form = document.getElementById('contactForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const successAlert = document.getElementById('successAlert');
+
+    // Real-time validation helpers
+    function validateField(field) {
+      let valid = true;
+
+      if (field.required && !field.value.trim()) valid = false;
+      if (field.minLength > 0 && field.value.trim().length < field.minLength) valid = false;
+      if (field.type === 'email') {
+        const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRe.test(field.value)) valid = false;
+      }
+      if (field.tagName === 'SELECT' && field.required && !field.value) valid = false;
+      if (field.type === 'checkbox' && field.required && !field.checked) valid = false;
+
+      field.classList.toggle('is-invalid', !valid);
+      field.classList.toggle('is-valid', valid && field.value !== '');
+      return valid;
+    }
+
+    // Live validation on blur
+    form.querySelectorAll('input, select, textarea').forEach(field => {
+      field.addEventListener('blur', () => validateField(field));
+      field.addEventListener('input', () => {
+        if (field.classList.contains('is-invalid')) validateField(field);
+      });
+    });
+
+    // Submit handler
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Validate all required fields
+      const fields = form.querySelectorAll('input[required], select[required], textarea[required]');
+      let allValid = true;
+      fields.forEach(field => {
+        if (!validateField(field)) allValid = false;
+      });
+
+      if (!allValid) {
+        // Scroll to first error
+        const firstError = form.querySelector('.is-invalid');
+        if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      // Simulate async submit
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Sending...';
+
+      setTimeout(() => {
+        submitBtn.style.display = 'none';
+        successAlert.classList.add('show');
+        form.reset();
+        // Clear valid states
+        form.querySelectorAll('.is-valid').forEach(f => f.classList.remove('is-valid'));
+      }, 1600);
+    });
+
+    // =============================================
+    // TOAST (Book a Call button)
+    // =============================================
+    document.getElementById('toastTrigger').addEventListener('click', () => {
+      const toast = new bootstrap.Toast(document.getElementById('bookToast'), { delay: 3500 });
+      toast.show();
+    });
+  </script>
+</body>
+</html>
